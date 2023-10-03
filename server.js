@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const { Pool } = require('pg');
 const bodyParser = require('body-parser');
@@ -6,16 +7,20 @@ const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// PostgreSQL connection options
 const pool = new Pool({
-  user: process.env.POSTGRES_USER || 'default',
-  host: process.env.POSTGRES_HOST || 'localhost',
-  database: process.env.POSTGRES_DATABASE || 'verceldb',
-  password: process.env.POSTGRES_PASSWORD || 'E1g7HuMAkcRn',
-  port: process.env.POSTGRES_PORT || 5432,
-  // Add other connection options as needed
-  // Example: ssl: { rejectUnauthorized: false }
+  connectionString: process.env.DATABASE_URL || 'postgres://default:E1g7HuMAkcRn@ep-billowing-boat-04198773.eu-central-1.postgres.vercel-storage.com:5432/verceldb',
+  ssl: {
+    rejectUnauthorized: false, // For testing purposes only. In production, set to true.
+  },
 });
+
+// const pool = new Pool({
+//   user: process.env.DB_USER || 'admin',
+//   host: process.env.DB_HOST || 'localhost',
+//   database: process.env.DB_NAME || 'test',
+//   password: process.env.DB_PASSWORD || 'admin',
+//   port: process.env.DB_PORT || 5432,
+// });
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -31,13 +36,12 @@ app.post('/api/form', async (req, res) => {
     );
 
     console.log('Form submission saved successfully');
-    res.status(200).send('Form submission saved');
+    res.status(200).json({ status: 'success', message: 'Form submission saved' });
   } catch (error) {
     console.error('Error executing query', error);
-    res.status(500).send('Error saving form submission');
+    res.status(500).json({ status: 'error', message: 'Error saving form submission' });
   }
 });
-
 app.get('/api/test-db', async (req, res) => {
   try {
     const result = await pool.query('SELECT 1');
