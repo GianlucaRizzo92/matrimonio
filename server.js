@@ -42,16 +42,6 @@ app.post('/api/form', async (req, res) => {
     res.status(500).json({ status: 'error', message: 'Error saving form submission' });
   }
 });
-app.get('/api/test-db', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT 1');
-    console.log('Database connection test successful');
-    res.status(200).send('Database connection test successful');
-  } catch (error) {
-    console.error('Error executing database query', error);
-    res.status(500).send('Error testing database connection');
-  }
-});
 
 pool.connect((err, client, release) => {
   if (err) {
@@ -61,7 +51,17 @@ pool.connect((err, client, release) => {
     release();
   }
 });
-
+app.get('/api/form', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM your_table');
+    const data = result.rows;
+    res.status(200).json({ status: 'success', data });
+    console.log(data)
+  } catch (error) {
+    console.error('Error executing query', error);
+    res.status(500).json({ status: 'error', message: 'Error retrieving data' });
+  }
+});
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
